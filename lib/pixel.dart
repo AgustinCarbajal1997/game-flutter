@@ -12,11 +12,11 @@ class Pixel extends StatelessWidget {
           BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
       margin: EdgeInsets.all(1),
       child: Center(
-        child: Text(
-          child.toString(),
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
+          //child: Text(
+          //  child.toString(),
+          //  style: TextStyle(color: Colors.white),
+          //),
+          ),
     );
   }
 }

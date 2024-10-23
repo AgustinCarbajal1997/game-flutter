@@ -35,6 +35,9 @@ class _GameBoardState extends State<GameBoard> {
   //current score
   int currentScore = 0;
 
+  //game over status
+  bool gameOver = false;
+
   @override
   @override
   void initState() {
@@ -59,10 +62,49 @@ class _GameBoardState extends State<GameBoard> {
         //check landing
         checkLanding();
 
+        //check game is over
+        if (gameOver == true) {
+          timer.cancel();
+          showGameOverDialog();
+        }
+
         //move current piece down
         currentPiece.movePiece(Direction.down);
       });
     });
+  }
+
+  void showGameOverDialog() {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text("Game Over"),
+              content: Text("Your score is: $currentScore"),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      resetGame();
+                      Navigator.pop(context);
+                    },
+                    child: Text("Play again"))
+              ],
+            ));
+  }
+
+  //reset the game
+  void resetGame() {
+    // clear the game board
+    gameBoard =
+        List.generate(colLength, (i) => List.generate(rowLength, (j) => null));
+
+    // new game
+    setState(() {
+      gameOver = false;
+      currentScore = 0;
+    });
+    //create new piece
+    createNewPiece();
+    startGame();
   }
 
   // check for collision detection
@@ -120,6 +162,20 @@ class _GameBoardState extends State<GameBoard> {
         Tetromino.values[rand.nextInt(Tetromino.values.length)];
     currentPiece = Piece(type: randomType);
     currentPiece.initializePiece();
+
+    /**
+
+     since our game condition is if there is a piece at the top level, you
+     want to check if the game is over when you create a new piece, instead of checking every frame,
+     because new pieces are allowed to go through the top level but if there is already a piece in the top when the new piece
+     is created, then game is over 
+     
+     */
+    if (isGameOver()) {
+      setState(() {
+        gameOver = true;
+      });
+    }
   }
 
   //move left
@@ -180,6 +236,19 @@ class _GameBoardState extends State<GameBoard> {
         });
       }
     }
+  }
+
+  // game over method
+  bool isGameOver() {
+    // check if any columns in the top row are filled
+    for (int col = 0; col < rowLength; col++) {
+      if (gameBoard[0][col] != null) {
+        return true;
+      }
+    }
+
+    //if the top is empty, the game is not over
+    return false;
   }
 
   @override
